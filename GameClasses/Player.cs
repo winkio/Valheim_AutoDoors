@@ -22,6 +22,12 @@ namespace AutoDoors.GameClasses
             if (player != __instance)
                 return;
 
+            if (Input.GetKeyDown(AutoDoorPlugin.Instance.Cfg.ToggleKey))
+            {
+                AutoDoorPlugin.Instance.Cfg.ModEnabled = !AutoDoorPlugin.Instance.Cfg.ModEnabled;
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "Auto Doors mod " + (AutoDoorPlugin.Instance.Cfg.ModEnabled ? "enabled" : "disabled"));
+            }
+
             bool validPlayer = player != null && !player.IsDead();
             var timeNow = DateTime.UtcNow;
             bool updateIntervalPassed = (timeNow - AutoDoorPlugin.Instance.LastUpdate).TotalSeconds >= AutoDoorPlugin.Instance.Cfg.UpdateInterval;

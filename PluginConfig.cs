@@ -4,12 +4,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace AutoDoors
 {
     public class PluginConfig
     {
         #region Properties - General
+
+        /// <summary>
+        /// Enables the mod
+        /// </summary>
+        public bool ModEnabled { get => modEnabled.Value; set => modEnabled.BoxedValue = value; }
+        ConfigEntry<bool> modEnabled;
+
+        /// <summary>
+        /// Key that toggles the mod
+        /// </summary>
+        public KeyCode ToggleKey { get => toggleKey.Value; }
+        ConfigEntry<KeyCode> toggleKey;
 
         /// <summary>
         /// Minimum interval between updates (s)
@@ -34,6 +47,8 @@ namespace AutoDoors
 
             var config = AutoDoorPlugin.Instance.Config;
 
+            modEnabled = config.Bind("General", "modEnabled", true, "Enable this mod");
+            toggleKey = config.Bind("General", "toggleKey", KeyCode.F6, "Press to toggle auto doors on/off.");
             updateInterval = config.Bind("General", "updateInterval", 1f/16, "Minimum interval between updates (s)");
             disableInCrypt = config.Bind("General", "disableInCrypt", true, "Disables auto doors inside crypts");
         }
