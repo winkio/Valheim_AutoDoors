@@ -19,7 +19,13 @@ namespace AutoDoors
         ConfigEntry<bool> modEnabled;
 
         /// <summary>
-        /// Key that toggles the mod
+        /// Press to toggle auto doors mod on/off.
+        /// </summary>
+        public KeyCode EnableKey { get => enableKey.Value; }
+        ConfigEntry<KeyCode> enableKey;
+
+        /// <summary>
+        /// Hold while interacting with the door to toggle between auto/manual.
         /// </summary>
         public KeyCode ToggleKey { get => toggleKey.Value; }
         ConfigEntry<KeyCode> toggleKey;
@@ -47,8 +53,9 @@ namespace AutoDoors
 
             var config = AutoDoorPlugin.Instance.Config;
 
-            modEnabled = config.Bind("General", "modEnabled", true, "Enable this mod");
-            toggleKey = config.Bind("General", "toggleKey", KeyCode.F6, "Press to toggle auto doors on/off.");
+            modEnabled = config.Bind("General", "modEnabled", true, "Enables the mod");
+            enableKey = config.Bind("General", "enableKey", KeyCode.F6, "Press to toggle auto doors mod on/off.");
+            toggleKey = config.Bind("General", "toggleKey", KeyCode.LeftAlt, "Hold while interacting with the door to toggle between auto/manual.");
             updateInterval = config.Bind("General", "updateInterval", 1f/16, "Minimum interval between updates (s)");
             disableInCrypt = config.Bind("General", "disableInCrypt", true, "Disables auto doors inside crypts");
         }

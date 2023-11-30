@@ -24,7 +24,7 @@ namespace AutoDoors.GameClasses
 
             var modEnabled = AutoDoorPlugin.Instance.Cfg.ModEnabled;
             var modToggleChange = modEnabled;
-            if (Input.GetKeyDown(AutoDoorPlugin.Instance.Cfg.ToggleKey))
+            if (Input.GetKeyDown(AutoDoorPlugin.Instance.Cfg.EnableKey))
             {
                 AutoDoorPlugin.Instance.Cfg.ModEnabled = modEnabled = !modEnabled;
                 MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "Auto Doors mod " + (modEnabled ? "enabled" : "disabled"));
@@ -54,55 +54,51 @@ namespace AutoDoors.GameClasses
                     var obj = UnityEngine.Object.FindObjectFromInstanceID(td.Id);
                     if (obj is Door d)
                     {
-                        var rangeChange = td.InAutoRange;
+                        var prevInAutoRange = td.InAutoRange;
                         var dsq = Vector3.SqrMagnitude(d.transform.position - player.transform.position);
                         td.InAutoRange = dsq <= rsq;
-                        rangeChange = rangeChange != td.InAutoRange;// detect changes in player proximity to door
-                        if (td.InAutoRange)
+                        var rangeChange = prevInAutoRange != td.InAutoRange;
+
+                        if (modToggleChange)
                         {
-                            if (!td.IsManual)
-                            {
-                                if (td.State == 0)
-                                {
-                                    if (!td.IsAutoOpened)
-                                    {
-                                        d.Interact(player, false, false);
-                                    }
-                                    else
-                                    {
-                                        td.IsManual = true;
-                                        //AutoDoorPlugin.InstanceLogger.LogInfo($"winkio.autodoors - door {td.Id} is now manual 1");
-                                    }
+                            if (!modEnabled)
+                            {// mod disabled
+                                if (td.IsAutomatic && td.State != 0)
+                                {// automatic doors should close
+                                    td.SetState(0);
                                 }
-                                else
-                                {
-                                    if (rangeChange)
-                                    {
-                                        td.IsManual = true;
-                                        //AutoDoorPlugin.InstanceLogger.LogInfo($"winkio.autodoors - door {td.Id} is now manual 2");
-                                    }
-                                    else
-                                    {
-                                        td.IsAutoOpened = true;
-                                    }
-                                }
-                            }
-                        }
-                        else if (!rangeChange)
-                        {
-                            if (!td.IsManual)
-                            {
-                                td.SetState(0);
-                                //AutoDoorPlugin.InstanceLogger.LogInfo($"winkio.autodoors - auto close {td.Id}");
-                            }
+                            } 
                             else
-                            {
-                                td.IsManual = false;
+                            {//mod enabled
+                                if (td.IsAutomatic)
+                                {// door is automatic
+                                    if(td.State == 0 && td.InAutoRange)
+                                    {// door is closed and in range so it should open
+                                        d.Interact(player, false, false);
+                                    } else if(td.State != 0 && !td.InAutoRange)
+                                    {// door is open and not in range so it should close
+                                        td.SetState(0);
+                                    }
+                                }
                             }
-                            td.IsAutoOpened = false;
+                        } else if (rangeChange && modEnabled && td.IsAutomatic)
+                        {// player has entered or exited interaction range of an automatic door
+                            if(td.InAutoRange && td.State == 0)
+                            {// should open on approach
+                                d.Interact(player, false, false);
+                            } 
+                            else if(!td.InAutoRange && td.State != 0)
+                            {// should close when player walks away
+                                td.SetState(0);
+                            }
                         }
+
+
+                        
                     }
+
                 }
+            
 
             }
 

@@ -15,15 +15,14 @@ namespace AutoDoors
         public bool IsValid { get; private set; } = true;
 
         public bool InAutoRange { get; set; }
-        public bool IsManual { get; set; }
-        public bool IsAutoOpened { get; set; }
+        public bool IsAutomatic { get; set; }
 
         public TrackedDoor(int id, ZNetView zNetView)
         {
             Id = id;
             ZNetView = zNetView;
             Update();
-            IsManual = State != 0;
+            IsAutomatic = State == 0;
         }
 
         public bool Update()
