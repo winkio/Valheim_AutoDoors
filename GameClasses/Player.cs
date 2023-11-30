@@ -22,11 +22,14 @@ namespace AutoDoors.GameClasses
             if (player != __instance)
                 return;
 
+            var modEnabled = AutoDoorPlugin.Instance.Cfg.ModEnabled;
+            var modToggleChange = modEnabled;
             if (Input.GetKeyDown(AutoDoorPlugin.Instance.Cfg.ToggleKey))
             {
-                AutoDoorPlugin.Instance.Cfg.ModEnabled = !AutoDoorPlugin.Instance.Cfg.ModEnabled;
-                MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "Auto Doors mod " + (AutoDoorPlugin.Instance.Cfg.ModEnabled ? "enabled" : "disabled"));
+                AutoDoorPlugin.Instance.Cfg.ModEnabled = modEnabled = !modEnabled;
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "Auto Doors mod " + (modEnabled ? "enabled" : "disabled"));
             }
+            modToggleChange = modEnabled != modToggleChange;// detect the mod turning off or on
 
             bool validPlayer = player != null && !player.IsDead();
             var timeNow = DateTime.UtcNow;
@@ -51,9 +54,10 @@ namespace AutoDoors.GameClasses
                     var obj = UnityEngine.Object.FindObjectFromInstanceID(td.Id);
                     if (obj is Door d)
                     {
-                        var prevInAutoRange = td.InAutoRange;
+                        var rangeChange = td.InAutoRange;
                         var dsq = Vector3.SqrMagnitude(d.transform.position - player.transform.position);
                         td.InAutoRange = dsq <= rsq;
+                        rangeChange = rangeChange != td.InAutoRange;// detect changes in player proximity to door
                         if (td.InAutoRange)
                         {
                             if (!td.IsManual)
