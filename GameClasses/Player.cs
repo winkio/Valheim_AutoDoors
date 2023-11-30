@@ -76,7 +76,7 @@ namespace AutoDoors.GameClasses
                                 }
                                 else
                                 {
-                                    if (!prevInAutoRange)
+                                    if (rangeChange)
                                     {
                                         td.IsManual = true;
                                         //AutoDoorPlugin.InstanceLogger.LogInfo($"winkio.autodoors - door {td.Id} is now manual 2");
@@ -88,7 +88,7 @@ namespace AutoDoors.GameClasses
                                 }
                             }
                         }
-                        else if (prevInAutoRange)
+                        else if (!rangeChange)
                         {
                             if (!td.IsManual)
                             {
