@@ -26,4 +26,50 @@ namespace AutoDoors.GameClasses
             }
         }
     }
+
+    [HarmonyPatch(typeof(Door), "GetHoverText")]
+    static class Door_GetHoverText_Patch
+    {
+        static void Postfix(Door __instance, ref string __result, ZNetView ___m_nview)
+        {
+            if (!AutoDoorPlugin.IsRunning || ___m_nview.GetZDO() == null)
+            {
+                return;
+            }
+
+            var id = __instance.GetInstanceID();
+            TrackedDoor foundDoor = AutoDoorPlugin.Instance.TrackedDoors.FirstOrDefault(td => td.Id == id);
+            if (foundDoor.IsValid)
+            {
+                __result += Localization.instance.Localize($"\n[<color=yellow><b>{AutoDoorPlugin.Instance.Cfg.ToggleKey}</b></color>+<color=yellow><b>$KEY_Use</b></color>] to set {(foundDoor.IsAutomatic ? "manual" : "automatic")}");
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(Door), "Interact")]
+    public static class Door_InteractState_Patch
+    {
+        static bool Prefix(Door __instance, ZNetView ___m_nview, Humanoid character)
+        {
+
+            if (!AutoDoorPlugin.IsRunning || !___m_nview.GetZDO().IsValid() || !(character is Player) || !Input.GetKey(AutoDoorPlugin.Instance.Cfg.ToggleKey))
+            {
+                return true;
+            }
+
+            if (AutoDoorPlugin.Instance.IsActive && __instance.m_keyItem == null)
+            {
+                var id = __instance.GetInstanceID();
+                TrackedDoor foundDoor = AutoDoorPlugin.Instance.TrackedDoors.FirstOrDefault(td => td.Id == id);
+                if (foundDoor.IsValid)
+                {
+                    foundDoor.IsAutomatic = !foundDoor.IsAutomatic;
+                    AutoDoorPlugin.InstanceLogger.LogInfo("Door set to " + (foundDoor.IsAutomatic ? "auto" : "manual"));
+                }
+                return false;
+            }
+
+            return true;
+        }
+    }
 }
