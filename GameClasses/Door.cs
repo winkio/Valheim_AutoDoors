@@ -36,9 +36,13 @@ namespace AutoDoors.GameClasses
             {
                 return;
             }
+
             var id = __instance.GetInstanceID();
             TrackedDoor foundDoor = AutoDoorPlugin.Instance.TrackedDoors.FirstOrDefault(td => td.Id == id);
-            __result += Localization.instance.Localize($"\n[<color=yellow><b>{AutoDoorPlugin.Instance.Cfg.ToggleKey}</b></color>+<color=yellow><b>$KEY_Use</b></color>] to set {(foundDoor.IsAutomatic ? "manual" : "automatic")}");
+            if (foundDoor.IsValid)
+            {
+                __result += Localization.instance.Localize($"\n[<color=yellow><b>{AutoDoorPlugin.Instance.Cfg.ToggleKey}</b></color>+<color=yellow><b>$KEY_Use</b></color>] to set {(foundDoor.IsAutomatic ? "manual" : "automatic")}");
+            }
         }
     }
 

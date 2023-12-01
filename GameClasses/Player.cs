@@ -22,14 +22,13 @@ namespace AutoDoors.GameClasses
             if (player != __instance)
                 return;
 
-            var modEnabled = AutoDoorPlugin.Instance.Cfg.ModEnabled;
-            var modToggleChange = modEnabled;
             if (Input.GetKeyDown(AutoDoorPlugin.Instance.Cfg.EnableKey))
             {
-                AutoDoorPlugin.Instance.Cfg.ModEnabled = modEnabled = !modEnabled;
-                MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "Auto Doors mod " + (modEnabled ? "enabled" : "disabled"));
+                AutoDoorPlugin.Instance.Cfg.ModEnabled = !AutoDoorPlugin.Instance.Cfg.ModEnabled;
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, $"Auto Doors mod {(AutoDoorPlugin.Instance.Cfg.ModEnabled ? "enabled." : "disabled.")}");
             }
-            modToggleChange = modEnabled != modToggleChange;// detect the mod turning off or on
+            var modEnabled = AutoDoorPlugin.Instance.Cfg.ModEnabled.Equals(true);
+
 
             bool validPlayer = player != null && !player.IsDead();
             var timeNow = DateTime.UtcNow;
@@ -58,6 +57,8 @@ namespace AutoDoors.GameClasses
                         var dsq = Vector3.SqrMagnitude(d.transform.position - player.transform.position);
                         td.InAutoRange = dsq <= rsq;
                         var rangeChange = prevInAutoRange != td.InAutoRange;
+                        var modToggleChange = modEnabled != td.lastModState;
+                        td.lastModState = modEnabled;
 
                         if (modToggleChange)
                         {
@@ -69,7 +70,7 @@ namespace AutoDoors.GameClasses
                                 }
                             } 
                             else
-                            {//mod enabled
+                            {// mod enabled
                                 if (td.IsAutomatic)
                                 {// door is automatic
                                     if(td.State == 0 && td.InAutoRange)
@@ -93,8 +94,6 @@ namespace AutoDoors.GameClasses
                             }
                         }
 
-
-                        
                     }
 
                 }

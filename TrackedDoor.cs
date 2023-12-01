@@ -16,6 +16,7 @@ namespace AutoDoors
 
         public bool InAutoRange { get; set; }
         public bool IsAutomatic { get; set; }
+        public bool lastModState { get; set; }
 
         public TrackedDoor(int id, ZNetView zNetView)
         {
@@ -23,6 +24,7 @@ namespace AutoDoors
             ZNetView = zNetView;
             Update();
             IsAutomatic = State == 0;
+            lastModState = AutoDoorPlugin.Instance.Cfg.ModEnabled.Equals(true);
         }
 
         public bool Update()
